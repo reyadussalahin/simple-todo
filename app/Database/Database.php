@@ -21,7 +21,7 @@ class Database implements DatabaseInterface
     {
         $db_url = getenv("DATABASE_URL");
         if($db_url === false) {
-            $db_url = "postgres://nouser:nopass@nohost:5432/nodb"
+            $db_url = "postgres://nouser:nopass@nohost:5432/nodb";
         }
         $options = parse_url($db_url);
         
