@@ -1,10 +1,13 @@
 <?php declare(strict_types=1);
 
-require __DIR__ . "/../vendor/autoload.php";
+require_once __DIR__ . "/../vendor/autoload.php";
 
 
 // load env
-(new \App\Util\DotEnv(__DIR__ . "/../.env"))->load();
+$envPath = $this->root_dir . DIRECTORY_SEPARATOR . ".env";
+if(file_exists($envPath) && is_file($envPath)) {
+    (new \App\Util\DotEnv($envPath))->load();
+}
 
 
 $tableSqlArray["todo"] = "CREATE TABLE IF NOT EXISTS todo (

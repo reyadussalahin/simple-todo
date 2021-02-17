@@ -19,7 +19,11 @@ class Database implements DatabaseInterface
 
     public function __construct()
     {
-        $options = parse_url(getenv("DATABASE_URL"));
+        $db_url = getenv("DATABASE_URL");
+        if($db_url === false) {
+            $db_url = "postgres://nouser:nopass@nohost:5432/nodb"
+        }
+        $options = parse_url($db_url);
         
         $this->scheme = $options["scheme"];
         if($this->scheme === "postgres") {

@@ -4,7 +4,10 @@ require_once __DIR__ . "/../vendor/autoload.php";
 
 
 // load env
-(new \App\Util\DotEnv(__DIR__ . "/../.env"))->load();
+$envPath = $this->root_dir . DIRECTORY_SEPARATOR . ".env";
+if(file_exists($envPath) && is_file($envPath)) {
+    (new \App\Util\DotEnv($envPath))->load();
+}
 
 
 /**
