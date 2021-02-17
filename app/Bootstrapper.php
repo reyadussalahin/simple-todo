@@ -51,9 +51,10 @@ class Bootstrapper implements BootstrapperInterface
 
     private function loadEnv()
     {
-        (new DotEnv(
-            $this->root_dir . DIRECTORY_SEPARATOR . ".env"
-        ))->load();
+        $envPath = $this->root_dir . DIRECTORY_SEPARATOR . ".env";
+        if(file_exists($envPath) && is_file($envPath)) {
+            (new DotEnv($envPath))->load();
+        }
         $this->env = new AppEnv();
     }
 
