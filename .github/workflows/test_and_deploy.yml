@@ -61,5 +61,5 @@ jobs:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
       - name: Deploying to Heroku
         run: |
-          git fetch heroku --all --unshallow
+          git fetch --all --unshallow
           git push heroku HEAD:main -f
