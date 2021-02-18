@@ -44,13 +44,12 @@ jobs:
       - name: Install dependencies
         run: |
           composer install --no-progress --prefer-dist --optimize-autoloader
-        # composer run-script post-install-cmd --no-interaction
           php database/migrate.php
         env:
           DATABASE_URL: postgres://postgres@127.0.0.1:${{ job.services.postgres.ports['5432'] }}/postgres
       # Add a step to run migrations if required
       - name: Test with phpunit
-        run: vendor/bin/phpunit # --coverage-text
+        run: vendor/bin/phpunit
         env:
           REDIS_PORT: ${{ job.services.redis.ports['6379'] }}
           DATABASE_URL: postgres://postgres@127.0.0.1:${{ job.services.postgres.ports['5432'] }}/postgres
