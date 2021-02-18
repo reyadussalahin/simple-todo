@@ -28,8 +28,10 @@
                     <input type="checkbox">
                     <span></span>
                 </label>
-                <div class="todo-item-content">
-                    One
+                <div class="todo-item-content-parent">
+                    <div class="todo-item-content">
+                        One
+                    </div>
                 </div>
                 <div class="todo-item-remove">
                 </div>

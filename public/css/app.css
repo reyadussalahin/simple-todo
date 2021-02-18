@@ -139,6 +139,7 @@ body {
 }
 
 .todo-item-content {
+  /*background-color: red;*/
   padding: 12px;
   /*text-decoration: line-through;*/
 }

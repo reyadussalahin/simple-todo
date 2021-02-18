@@ -54,14 +54,23 @@ const todoFactory = function(o) {
     content() {
       return content;
     },
-    updateStatus(newStatus) {
-      if(newStatus !== this.status()) {
-        return todoFactory({
-          id,
-          content,
-          status: newStatus
-        });
+    update(u) {
+      let _status = status;
+      let _content = content;
+      if(u.status !== null && u.status !== undefined) {
+        _status = u.status;
       }
+      if(u.content !== null && u.content !== undefined) {
+        _content = u.content;
+      }
+      if(_content === content && _status === status) {
+        return null;
+      }
+      return todoFactory({
+        id,
+        status: _status,
+        content: _content
+      });
     }
   };
 };
@@ -326,10 +335,12 @@ const todoItemViewFactory = function(todo) {
   const removeBtn = node.querySelector(".todo-item-remove");
   node.id = todo.id();
   content.textContent = todo.content();
+  content.addEventListener("click", itemContentClickListener);
   checkboxLabel.addEventListener("change", checkboxListener);
   removeBtn.addEventListener("click", removeBtnListener);
-  node.updateStatus = function(status) {
-    if(status === TODO_STATUS.COMPLETED) {
+  node.update = function(todo) {
+    content.textContent = todo.content();
+    if(todo.status() === TODO_STATUS.COMPLETED) {
       checkboxInput.checked = true;
       content.style.textDecoration = "line-through";
     } else {
@@ -337,7 +348,7 @@ const todoItemViewFactory = function(todo) {
       content.style.textDecoration = "";
     }
   };
-  node.updateStatus(todo.status());
+  node.update(todo);
   return node;
 };
 
@@ -449,7 +460,7 @@ const viewFactory = function() {
     },
     update(data) {
       let node = list.get(data.todo.id());
-      node.updateStatus(data.todo.status());
+      node.update(data.todo);
       if(mode !== LIST_VIEW.ALL) {
         if(mode !== data.todo.status()) {
           list.remove(node);
@@ -461,7 +472,6 @@ const viewFactory = function() {
       } else {
         clearCompleted.hide();
       }
-
     },
     setMode(newMode, data) {
       if(mode !== newMode) {
@@ -539,9 +549,13 @@ async function checkboxListener(ev) {
   let oldTodo = cache.get(node.id);
   let todo = null;
   if(ev.target.checked) {
-    todo = oldTodo.updateStatus(TODO_STATUS.COMPLETED);
+    todo = oldTodo.update({
+      status: TODO_STATUS.COMPLETED
+    });
   } else {
-    todo = oldTodo.updateStatus(TODO_STATUS.ACTIVE);
+    todo = oldTodo.update({
+      status: TODO_STATUS.ACTIVE
+    });
   }
   if(todo !== null) {
     let todoRet = await db.update(todo);
@@ -553,6 +567,57 @@ async function checkboxListener(ev) {
       });
     }
   }
+}
+
+function itemContentClickListener(ev) {
+  ev.preventDefault();
+  console.log("item clicked");
+  let div = ev.target;
+  let divParent = div.parentNode;
+  let input = document.createElement("input");
+  input.value = div.textContent;
+  input.style.padding = "12px";
+  input.style.fontSize = "20px";
+  input.style.border = "2px solid white";
+  divParent.textContent = "";
+  divParent.appendChild(input);
+  input.focus();
+  const itemInputListener = async function(ev) {
+    ev.preventDefault();
+    let content = input.value.trim();
+    let oldContent = div.textContent;
+    div.textContent = content;
+    divParent.textContent = "";
+    divParent.appendChild(div);
+    let updateFailed = true;
+    if(content !== "") {
+      let node = div.closest(".todo-item");
+      let oldTodo = cache.get(node.id);
+      let todo = oldTodo.update({
+        content: content
+      });
+      if(todo !== null) {
+        let todoRet = await db.update(todo);
+        if(todoRet !== null) {
+          view.update({
+            todo: cache.update(todoRet),
+            completed: cache.completed(),
+            active: cache.active()
+          });
+          updateFailed = false;
+        }
+      }
+    }
+    if(updateFailed) {
+      div.textContent = oldContent;
+    }
+  };
+  input.addEventListener("focusout", itemInputListener);
+  input.addEventListener("keyup", (ev) => {
+    if(ev.key === "Enter" || ev.keyCode === 13) {
+      itemInputListener(ev);
+    }
+  });
 }
 
 async function removeBtnListener(ev) {
