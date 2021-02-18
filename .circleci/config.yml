@@ -1,0 +1,50 @@
+version: 2
+
+jobs:
+  build:
+    working_directory: ~/simple-todo
+    docker:
+      - image: circleci/php:7.4-browsers
+      - image: circleci/postgres:9.6.5-alpine
+        environment:
+          DATABASE_URL: postgresql://root@localhost/circle_test
+
+    steps:
+      - checkout:
+          path: ~/simple-todo
+
+      - run: sudo apt-get update
+
+      - run:
+          name: Install dependencies
+          command: |
+            sudo apt-get install libpq-dev
+            sudo apt-get install postgresql-client
+      - run:
+          name: Install PHP exts
+          command: |
+            sudo docker-php-ext-install pdo_pgsql
+            sudo docker-php-ext-enable pdo_pgsql
+      - run:
+          name: migrating database
+          command: |
+            php database/migrate.php
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "composer.json" }}
+            - v1-dependencies-
+
+      - run: composer install
+
+      - save_cache:
+          key: v1-dependencies-{{ checksum "composer.json" }}
+          paths:
+            - ./vendor
+
+      - run: ./vendor/bin/phpunit
+
+workflows:
+  version: 2
+  build-and-deploy:
+    jobs:
+      - build
