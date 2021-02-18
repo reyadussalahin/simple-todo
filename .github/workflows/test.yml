@@ -12,9 +12,9 @@ jobs:
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: postgres
+          POSTGRES_DB: test
         ports:
-          - 5432/tcp
+          - 5432:5432
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 3
       redis:
         image: redis
@@ -46,10 +46,10 @@ jobs:
           composer install --no-progress --prefer-dist --optimize-autoloader
           php database/migrate.php
         env:
-          DATABASE_URL: postgres://postgres:postgres@127.0.0.1:${{ job.services.postgres.ports['5432'] }}/postgres
+          DATABASE_URL: postgres://postgres:postgres@127.0.0.1:5432/test
       # Add a step to run migrations if required
       - name: Test with phpunit
         run: vendor/bin/phpunit
         env:
           REDIS_PORT: ${{ job.services.redis.ports['6379'] }}
-          DATABASE_URL: postgres://postgres:postgres@127.0.0.1:${{ job.services.postgres.ports['5432'] }}/postgres
+          DATABASE_URL: postgres://postgres:postgres@127.0.0.1:5432/test
