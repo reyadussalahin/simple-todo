@@ -13,18 +13,44 @@ use App\Http\Request\RequestHandler;
 
 class App implements AppInterface
 {
+    /**
+     * The Bootstrapper of the application
+     *
+     * Only one Bootstrapper exists per application
+     *
+     * @var BootstrapperInterface
+     */
     private $bs;
 
+
+    /**
+     * Creates Application
+     * 
+     * @param BootstrapperInterface $bs
+     * @return void
+     */
     public function __construct(BootstrapperInterface $bs)
     {
         $this->bs = $bs;
     }
 
+
+    /**
+     * Returns the Bootstrapper used by the application
+     * 
+     * @return BootstrapperInterface
+     */
     public function bs(): BootstrapperInterface
     {
         return $this->bs;
     }
 
+
+    /**
+     * Process User Request and returns Response
+     * 
+     * @return ResponseInterface
+     */
     public function processRequest(): ResponseInterface
     {
         $routes = $this->bs->routes();
