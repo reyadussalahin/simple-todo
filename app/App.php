@@ -18,7 +18,7 @@ class App implements AppInterface
      *
      * Only one Bootstrapper exists per application
      *
-     * @var BootstrapperInterface
+     * @var App\Contracts\BootstrapperInterface
      */
     private $bs;
 
@@ -26,7 +26,7 @@ class App implements AppInterface
     /**
      * Creates Application
      * 
-     * @param BootstrapperInterface $bs
+     * @param App\Contracts\BootstrapperInterface $bs
      * @return void
      */
     public function __construct(BootstrapperInterface $bs)
@@ -38,7 +38,7 @@ class App implements AppInterface
     /**
      * Returns the Bootstrapper used by the application
      * 
-     * @return BootstrapperInterface
+     * @return App\Contracts\BootstrapperInterface
      */
     public function bs(): BootstrapperInterface
     {
@@ -49,7 +49,7 @@ class App implements AppInterface
     /**
      * Process User Request and returns Response
      * 
-     * @return ResponseInterface
+     * @return App\Contracts\Http\Response\ResponseInterface
      */
     public function processRequest(): ResponseInterface
     {
