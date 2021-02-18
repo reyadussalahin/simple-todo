@@ -521,11 +521,13 @@ async function inputListener(ev) {
       status: TODO_STATUS.ACTIVE
     });
     let todoRet = await db.add(todo);
-    view.add({
-      todo: cache.add(todoRet),
-      active: cache.active(),
-      completed: cache.completed()
-    });
+    if(todoRet !== null) {
+      view.add({
+        todo: cache.add(todoRet),
+        active: cache.active(),
+        completed: cache.completed()
+      });
+    }
   }
 }
 
@@ -541,11 +543,13 @@ async function checkboxListener(ev) {
   }
   if(todo !== null) {
     let todoRet = await db.update(todo);
-    view.update({
-      todo: cache.update(todoRet),
-      completed: cache.completed(),
-      active: cache.active()
-    });
+    if(todoRet !== null) {
+      view.update({
+        todo: cache.update(todoRet),
+        completed: cache.completed(),
+        active: cache.active()
+      });
+    }
   }
 }
 
@@ -553,7 +557,8 @@ async function removeBtnListener(ev) {
   ev.preventDefault();
   let node = ev.target.closest(".todo-item");
   let todo = cache.get(node.id);
-  if(await db.remove(todo)) {
+  let removeStatus = await db.remove(todo);
+  if(removeStatus === true) {
     view.remove({
       todo: cache.remove(todo),
       completed: cache.completed(),
@@ -602,7 +607,7 @@ async function clearCompletedBtnListener(ev) {
       }
     }
     let response = await db.removeSeveral(bin);
-    if(response) {
+    if(response === true) {
       for(let todo of bin) {
         view.remove({
           todo: cache.remove(todo),

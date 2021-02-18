@@ -41,12 +41,22 @@ class TodoController extends AbstractController
         if($this->request->has("todo-status")) {
             $status = $this->request->get("todo-status");
         }
-
-        $ret = $this->todoRepo->add($content, $status);
-
+        $content = trim($content);
+        $status = trim($status);
+        if(strlen($content) === 0
+            || (strcmp($status, "completed") !== 0 
+                && strcmp($status, "active") !== 0)) {
+            return $this->json([
+                "status" => "error",
+                "error" => [
+                    "input" => "found invalid input value"
+                ]
+            ]);
+        }
+        $todo = $this->todoRepo->add($content, $status);
         return $this->json([
             "status" => "success",
-            "todo" => $ret
+            "todo" => $todo
         ]);
     }
 
@@ -59,6 +69,18 @@ class TodoController extends AbstractController
         }
         if($this->request->has("todo-status")) {
             $status = $this->request->get("todo-status");
+        }
+        $content = trim($content);
+        $status = trim($status);
+        if(strlen($content) === 0
+            || (strcmp($status, "completed") !== 0 
+                && strcmp($status, "active") !== 0)) {
+            return $this->json([
+                "status" => "error",
+                "error" => [
+                    "input" => "found invalid input value"
+                ]
+            ]);
         }
         $todo = $this->todoRepo->update($id, $content, $status);
         return $this->json([
