@@ -1,5 +1,5 @@
 name: Automated Test and Deploy Simple Todo App to Heroku
-on: [push, pull_request]
+on: [push]
 jobs:
   tests:
     strategy:
@@ -54,7 +54,8 @@ jobs:
           REDIS_PORT: 6379
           DATABASE_URL: postgres://postgres:postgres@127.0.0.1:5432/test
       - name: Deploying to Heroku
-        run: git push https://heroku:$HEROKU_API_KEY@git.heroku.com/$HEROKU_APP_NAME.git main
+        run: |
+          git push https://heroku:$HEROKU_API_KEY@git.heroku.com/$HEROKU_APP_NAME.git main -f
         env:
           HEROKU_APP_NAME: ${{ secrets.HEROKU_APP_NAME }}
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
