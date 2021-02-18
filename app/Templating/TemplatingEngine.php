@@ -30,7 +30,7 @@ class TemplatingEngine implements TemplatingEngineInterface
     private function csrfTokenTemplator()
     {
         $_csrf = function() {
-            if($this->session->get('csrfmiddlewaretoken') === null) {
+            if($this->session->has('csrfmiddlewaretoken') === false) {
                 $csrfgen = new csrfGenerator();
                 $this->session->set('csrfmiddlewaretoken', $csrfgen->generateToken());
             }

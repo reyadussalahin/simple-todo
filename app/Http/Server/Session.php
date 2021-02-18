@@ -20,8 +20,16 @@ class Session implements SessionInterface
         $this->globals->session()[$key] = $value;
     }
 
+    public function has($key)
+    {
+        return isset($this->globals->session()[$key]);
+    }
+
     public function get($key)
     {
-        return $this->globals->session()[$key];
+        if($this->has($key)) {
+            return $this->globals->session()[$key];
+        }
+        return null;
     }
 }
