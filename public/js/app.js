@@ -516,17 +516,19 @@ async function inputListener(ev) {
     ev.preventDefault();
     let content = input.content();
     input.clear();
-    let todo = todoFactory({
-      content: content,
-      status: TODO_STATUS.ACTIVE
-    });
-    let todoRet = await db.add(todo);
-    if(todoRet !== null) {
-      view.add({
-        todo: cache.add(todoRet),
-        active: cache.active(),
-        completed: cache.completed()
+    if(content !== "") {
+      let todo = todoFactory({
+        content: content,
+        status: TODO_STATUS.ACTIVE
       });
+      let todoRet = await db.add(todo);
+      if(todoRet !== null) {
+        view.add({
+          todo: cache.add(todoRet),
+          active: cache.active(),
+          completed: cache.completed()
+        });
+      }
     }
   }
 }
