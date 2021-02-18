@@ -16,17 +16,75 @@ use App\Database\Database;
 
 class Bootstrapper implements BootstrapperInterface
 {
+    /**
+     * Points to applications root directory
+     * 
+     * @var string 
+     */
     private $root_dir;
+
+
+    /**
+     * Store all routes
+     * 
+     * @var App\Contracts\Routing\RoutesStoreInterface
+     */
     private $routes;
+
+
+    /**
+     * Provides access to Environment variables
+     * 
+     * @var App\AppEnv
+     */
     private $env;
+
+
+    /**
+     * Provides access to global variables
+     *
+     * @var App\Contracts\GlobalsInterface
+     */
     private $globals;
+
+    
+    /**
+     * Provides list of generic middlewares
+     *
+     * @var array
+     */
     private $middlewares;
+
+
+    /**
+     * Provides access to view files
+     *
+     * @var App\Templating\ViewsStore
+     */
     private $views;
+
+
+    /**
+     * Contains database object to provide database connection
+     *
+     * Only one such connection is created per request
+     *
+     * That means this connection is reused again and again
+     *
+     * In a single request
+     *
+     * @var App\Contracts\Database\DatabaseInterface
+     */
     private $db;
+
+
 
     public function __construct(string $root_dir)
     {
-        session_start();
+        // supressing session start errors
+        // it won't cause any problem in running application
+        // it's good for testing purposes
+        @session_start();
         $this->root_dir = $root_dir;
         $this->loadGlobals();
         $this->loadRoutes();
@@ -43,38 +101,44 @@ class Bootstrapper implements BootstrapperInterface
 
     private function loadRoutes()
     {
-        $routesProcessor = new RoutesProcessor($this->root_dir
-            . DIRECTORY_SEPARATOR
-            . "routes");
-        $this->routes = $routesProcessor->getRoutes();
+        $routes_dir = $this->root_dir . DIRECTORY_SEPARATOR . "routes";
+        // routes_dir must be directory
+        if(is_dir($routes_dir)) {
+            $routesProcessor = new RoutesProcessor($routes_dir);
+            $this->routes = $routesProcessor->getRoutes();
+        } else {
+            $this->routes = null;
+        }
     }
 
     private function loadEnv()
     {
-        $envPath = $this->root_dir . DIRECTORY_SEPARATOR . ".env";
-        if(file_exists($envPath) && is_file($envPath)) {
-            (new DotEnv($envPath))->load();
+        $dotenv_file = $this->root_dir . DIRECTORY_SEPARATOR . ".env";
+        if(is_file($dotenv_file)) {
+            (new DotEnv($dotenv_file))->load();
         }
         $this->env = new AppEnv();
     }
 
     private function loadMiddlewares()
     {
-        $middlewares_root = $this->root_dir
-            . DIRECTORY_SEPARATOR
-            . "middlewares";
-        $common_middlewares_filepath = $middlewares_root
-            . DIRECTORY_SEPARATOR
-            . "common.php";
-        $this->middlewares = include $common_middlewares_filepath;
+        $middlewares_dir = $this->root_dir . DIRECTORY_SEPARATOR . "middlewares";
+        $common_middlewares_file = $middlewares_dir . DIRECTORY_SEPARATOR . "common.php";
+        if(is_dir($middlewares_dir) && is_file($common_middlewares_file)) {
+            $this->middlewares = include $common_middlewares_file;
+        } else {
+            $this->middlewares = null;
+        }
     }
 
     private function loadViews()
     {
-        $this->views = new ViewsStore($this->root_dir
-            . DIRECTORY_SEPARATOR
-            . "views"
-        );
+        $view_dir = $this->root_dir . DIRECTORY_SEPARATOR . "views";
+        if(is_dir($view_dir)) {
+            $this->views = new ViewsStore($view_dir);
+        } else {
+            $this->views = null;
+        }
     }
 
     private function loadDb()
