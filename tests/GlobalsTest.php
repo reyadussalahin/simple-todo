@@ -7,7 +7,7 @@ use App\Contracts\GlobalsInterface;
 use App\Globals;
 
 
-class GlobalsText extends TestCase
+class GlobalsTest extends TestCase
 {
     public function testInterface()
     {

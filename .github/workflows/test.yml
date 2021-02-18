@@ -4,7 +4,7 @@ jobs:
   tests:
     strategy:
       matrix:
-        php-versions: ['7.2', '7.3', '7.4']
+        php-versions: ['7.4']
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -37,7 +37,6 @@ jobs:
       - name: Install dependencies
         run: |
           composer install --no-progress --prefer-dist --optimize-autoloader
-          composer run-script post-install-cmd --no-interaction
           php database/migrate.php
       # Add a step to run migrations if required
       - name: Test with phpunit
