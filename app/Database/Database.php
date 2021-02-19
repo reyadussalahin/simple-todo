@@ -17,12 +17,8 @@ class Database implements DatabaseInterface
     private $conn;
     private $pdo_options;
 
-    public function __construct()
+    public function __construct(string $db_url)
     {
-        $db_url = getenv("DATABASE_URL");
-        if($db_url === false) {
-            $db_url = "postgres://nouser:nopass@nohost:5432/nodb";
-        }
         $options = parse_url($db_url);
         
         $this->scheme = $options["scheme"];
