@@ -1,11 +1,29 @@
-![GitHub Workflow Status](https://img.shields.io/github/workflow/status/reyadussalahin/simple-todo/Automated%20Test%20and%20Deploy%20Simple%20Todo%20App%20to%20Heroku?style=flat)
-[![Issues](https://img.shields.io/github/issues/reyadussalahin/simple-todo?style=flat&color=blue)](https://github.com/reyadussalahin/simple-todo/issues)
-[![License](https://img.shields.io/github/license/reyadussalahin/simple-todo?color=teal&style=flat)](https://github.com/reyadussalahin/simple-todo/blob/master/LICENSE)
+<!-- ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/reyadussalahin/simple-todo/Automated%20Test%20and%20Deploy%20Simple%20Todo%20App%20to%20Heroku?style=flat) -->
+<!-- [![Issues](https://img.shields.io/github/issues/reyadussalahin/simple-todo?style=flat&color=blue)](https://github.com/reyadussalahin/simple-todo/issues) -->
+<!-- [![License](https://img.shields.io/github/license/reyadussalahin/simple-todo?color=teal&style=flat)](https://github.com/reyadussalahin/simple-todo/blob/master/LICENSE) -->
 <!-- [![Forks](https://img.shields.io/github/forks/reyadussalahin/simple-todo?style=flat&color=purple)](https://github.com/reyadussalahin/simple-todo/network/members) -->
 <!-- [![Stars](https://img.shields.io/github/stars/reyadussalahin/simple-todo?style=flat)](https://github.com/reyadussalahin/simple-todo/stargazers) -->
 
-# Simple Todo
+<h1 align="center">Simple Todo</h1>
 
+<p align="center">
+    <span>
+        <a href="https://github.com/reyadussalahin/simple-todo/actions">
+            <img alt="GitHub Workflow Status" src="https://img.shields.io/github/workflow/status/reyadussalahin/simple-todo/Automated%20Test%20and%20Deploy%20Simple%20Todo%20App%20to%20Heroku?style=flat">
+        </a>
+    </span>
+    <span>
+        <a href="https://github.com/reyadussalahin/simple-todo/issues">
+            <img alt="GitHub Workflow Status" src="https://img.shields.io/github/issues/reyadussalahin/simple-todo?style=flat&color=blue">
+        </a>
+    </span>
+    <span>
+        <a href="https://github.com/reyadussalahin/simple-todo/blob/main/LICENSE">
+            <img alt="GitHub Workflow Status" src="https://img.shields.io/github/license/reyadussalahin/simple-todo?color=teal&style=flat">
+        </a>
+    </span>
+</p>
+<br>
 Simple todo is a very minimalistic webapp. It has been built to demonstrate the process of building an webapp using `Object Oriented PHP`. Though, this app is very minimalistic in nature, it contains all the basic properties of a good web application. It has been built totally object oriented way using pure PHP(no framework has been used other than PHPUnit, which is only a testing framework), HTML, CSS and JavaScript. At present this app support several good features. I'm going to describe them below.
 
 ### Live
