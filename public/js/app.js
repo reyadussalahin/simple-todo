@@ -1,8 +1,14 @@
+// constants for denoting todo status
+// todos can be either "active" or "completed"
 const TODO_STATUS = Object.freeze({
   ACTIVE: 0,
   COMPLETED: 1
 });
 
+// constants for denoting which view mode is on
+// when "all", app shows all todos i.e. both "active" and "completed"
+// and when "active", app shows only active
+// and when "completed", app shows only completed
 const LIST_VIEW = Object.freeze({
   ACTIVE: TODO_STATUS.ACTIVE,
   COMPLETED: TODO_STATUS.COMPLETED,
@@ -14,16 +20,24 @@ const LIST_VIEW = Object.freeze({
 //   SUCCESS: 0
 // });
 
+
+// template for showing todo item
+// this template is copied and modified by adding todo contents
+// and setting status for proper view purposes
+// after setting it properly, it is added to todo list
 const todoTemplate = document.getElementById("todo-item-template");
 if(todoTemplate !== null) {
   console.log("todo item template retreived successfully...");
 }
 
+// templates is the section added inside html which deleted
+// from html contents when javascript i.e. app.js loads
 const templates = document.getElementById("templates");
 if(templates !== null) {
   templates.parentNode.removeChild(templates);
 }
 
+// function which returns "root" url without trailing slashes
 const getOrigin = function () {
   let origin = window.location.origin;
   if(origin[origin.length - 1] === "/") {
@@ -32,6 +46,7 @@ const getOrigin = function () {
   return origin;
 };
 
+// returns current page's url without trailing slashes
 const getUrl = function () {
   let url = window.location.toString();
   if(url[url.length - 1] === "/") {
@@ -40,11 +55,22 @@ const getUrl = function () {
   return url;
 };
 
+// todo factory creates a Todo object
+// it supports data hiding through closures
+// and returns a Todo object with methods
 const todoFactory = function(o) {
+  // check provided object `o` for todo data
+  // if not exist, then assign null
+  // `null` has been chosen for keeping consistency:
+  //  "either it exists or its null"
   let id = (o.id === null || o.id === undefined) ? null : o.id;
   let content = (o.content === null || o.content === undefined) ? null : o.content;
   let status = (o.status === null || o.status === undefined) ? null: o.status;
+
   return {
+    // notice, id is returned through a method id()
+    // because of data hiding
+    // same goes for other fields
     id() {
       return id;
     },
@@ -54,6 +80,11 @@ const todoFactory = function(o) {
     content() {
       return content;
     },
+    // update takes an object as input which contains
+    // either status or content or both fields
+    // if any of the field(or both) is mismatched
+    // it returns a new Todo object
+    // otherwise just returns null
     update(u) {
       let _status = status;
       let _content = content;
@@ -75,26 +106,53 @@ const todoFactory = function(o) {
   };
 };
 
+
+// cache factory returns a Cache object
+// it provides data hiding through closures
+// it returns a object with necessary methods
+// for cache storing, removing and updating
 const cacheFactory = function() {
+  // todos field contains all cached Todo object
   let todos = {};
+  // count field keeps track of "active" and "completed"
+  // Todo object count
   let count = [];
+  // initializing count with 0 for both "active" and "completed"
   count[TODO_STATUS.ACTIVE] = 0;
   count[TODO_STATUS.COMPLETED] = 0;
+
   return {
+    // notice, `todos` provided by methods
+    // its only for the facility of data hiding
+    // so that, data remains consistent
+    // and doesn't change by accident
     todos() {
       return todos;
     },
+    // returns the Todo object with provided id
+    // if not exists just return null
     get(id) {
       if(todos[id] !== null) {
         return todos[id];
       }
       return null;
     },
+    // add Todo to cache
+    // also update `count` status
+    // add method only adds todo if it does not exist
     add(todo) {
-      todos[todo.id()] = todo;
-      count[todo.status()]++;
-      return todo;
+      // only add Todo if it does not exist
+      if(todos[todo.id()] === null || todos[todo.id()] === undefined) {
+        todos[todo.id()] = todo;
+        count[todo.status()]++;
+        return todo;
+      }
+      // if exists already, then just return null
+      return null;
     },
+    // removes data from cache
+    // and retuns the Todo object on successful delete
+    // on failure returns null
     remove(todo) {
       if(todos[todo.id()] !== null) {
         delete todos[todo.id()];
@@ -103,6 +161,10 @@ const cacheFactory = function() {
       }
       return null;
     },
+    // updates Todo in cache
+    // update only if Todo object exists already
+    // else just return null
+    // also, notice it updates the count
     update(todo) {
       let old = todos[todo.id()];
       if(old !== null && old !== undefined) {
@@ -115,29 +177,42 @@ const cacheFactory = function() {
       }
       return null;
     },
+    // returns total no of Todo object in cache
     total() {
       return count[TODO_STATUS.ACTIVE] + count[TODO_STATUS.COMPLETED];
     },
+    // returns no of active Todo object in cache
     active() {
       return count[TODO_STATUS.ACTIVE];
     },
+    // returns no of completed Todo object in cache
     completed() {
       return count[TODO_STATUS.COMPLETED];
     }
   };
 };
 
-
+// xhrRequest is a function which provides a very easy way
+// to send XMLHttpRequest(i.e. ajax) request to server
+// rather than doing a normal xhr request directly, it
+// returns a Promise object
+// so, one must use it through .then() or await
 const xhrRequest = function(request) {
+  // returning Promise
   return new Promise((resolve, reject) => {
+    // create a new XMLHttpRequest object
     let xhr = new XMLHttpRequest();
     xhr.open(request.method, request.url);
     xhr.addEventListener("readystatechange", function() {
+      // when response returned successfully
+      // resolve it
       if(this.readyState === 4 && this.status === 200) {
         let response = JSON.parse(this.responseText);
         resolve(response);
       }
     });
+    // if error occurred, then reject the promise
+    // with `status: error` message
     xhr.addEventListener("error", function() {
       reject({
         "status": "error",
@@ -146,16 +221,25 @@ const xhrRequest = function(request) {
           "statusText": this.statusText
         }
       });
-    })
+    });
+    // note, this xhr request always sends `application/x-www-form-urlencoded`
+    // request. for our usecase it enough for now
+    // any changes need to made will be done later
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    // send data if the method is post
+    // we'll add PUT/PATCH support, if needed
     if(request.method === "POST") {
       xhr.send(request.data);
     } else {
+      // else just send for methods anyhting other than post
       xhr.send();
     }
   });
 };
 
+// process server side returned data to a Todo object
+// note: By `Todo object`, I mean a object returned by
+//       todoFactory() function
 const processTodoData = function(todoData) {
   let status = TODO_STATUS.ACTIVE;
   if(todoData.status === "completed") {
@@ -169,6 +253,9 @@ const processTodoData = function(todoData) {
   return todo;
 };
 
+// this function returns an object which
+// returns csrftoken value using a method
+// called value()
 const csrfTokenFactory = function() {
   const csrfToken = document.getElementById("csrfmiddlewaretoken");
   return {
@@ -178,6 +265,9 @@ const csrfTokenFactory = function() {
   }
 };
 
+// converts `Todo object` data to server side
+// representable data. This conversion is necessary
+// to send data to server
 const todoUrlencodedData = function(todo) {
   let data = "";
   if(todo.id() !== null && todo.id() !== undefined) {
@@ -202,18 +292,34 @@ const todoUrlencodedData = function(todo) {
   return data;
 }
 
+
+// databaseFactory returns a `Database object`
+// `Database object` abstracts away all the necessary
+// operations for database which provides a very
+// convenient to way to talk to database.
+// on note: `Cache object` is always in sync with `Database object`
 const databaseFactory = function() { 
   return {
+    // returns all todos from database
     async all() {
       let url = getOrigin() + "/todos";
+      // send a request to database and wait until response
+      // arive.
+      // note: it does not block the execution cause
+      //       promise is used to resolve response
       let response = await xhrRequest({
         method: "GET",
         url: url
       });
+      // by default `todos` is null
+      // if `todos` remains null till the end
+      // it means some error occured during database operations
+      // note: error is printed in browser console
       let todos = null;
       if(response.status === "success") {
         todos = {};
         for(let id of Object.keys(response.todos)) {
+          // convert server side data representation to `Todo object`
           todos[id] = processTodoData(response.todos[id]);
         }
       } else {
@@ -225,8 +331,11 @@ const databaseFactory = function() {
       }
       return todos;
     },
+    // adds data to database
+    // takes `Todo object` as input
     async add(todo) {
       let url = getOrigin() + "/todo";
+      // csrfmiddlwaretoken must be added when sending post request
       let data = "csrfmiddlewaretoken=" + csrfTokenFactory().value();
       data += "&" + todoUrlencodedData(todo);
       let response = await xhrRequest({
@@ -234,6 +343,10 @@ const databaseFactory = function() {
         url: url,
         data: data
       });
+      // by default todoRet is null
+      // if at the end null is returned, it means
+      // some error occured
+      // and error is logged in browser console
       let todoRet = null;
       if(response.status === "success") {
         todoRet = processTodoData(response.todo);
@@ -246,6 +359,10 @@ const databaseFactory = function() {
       }
       return todoRet;
     },
+    // removes single todo from database
+    // takes a `Todo object` as input
+    // upon success returns `true`
+    // and on fail returns `false`
     async remove(todo) {
       let url = getOrigin() + "/todo/" + todo.id();
       let response = await xhrRequest({
@@ -259,6 +376,10 @@ const databaseFactory = function() {
       console.log("couldn't delete " + todo.id());
       return false;
     },
+    // updates todo data in database
+    // takes a `Todo object` as input which contains
+    // updated data. Note: `id` should be same as old `Todo object``
+    // upon success returns updated `Todo object``
     async update(todo) {
       let url = getOrigin() + "/todo/" + todo.id();
       let data = "csrfmiddlewaretoken=" + csrfTokenFactory().value();
@@ -268,6 +389,11 @@ const databaseFactory = function() {
         url: url,
         data: data
       });
+      // by default todoRet is null
+      // if null returns, that means
+      // nothing to update
+      // or couldn't update data
+      // if fails, then it prints error to browser console
       let todoRet = null;
       if(response.status === "success") {
         todoRet = processTodoData(response.todo);
@@ -276,6 +402,10 @@ const databaseFactory = function() {
       }
       return todoRet;
     },
+    // removes multiple todos from database
+    // in this case, we just send todos id as an array to delete
+    // upon success, it returns true
+    // on fail, just returns false
     async removeSeveral(bin) {
       let url = getOrigin() + "/todos/remove";
       let data = "csrfmiddlewaretoken=" + csrfTokenFactory().value();
